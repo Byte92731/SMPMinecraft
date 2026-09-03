@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Byte SMP </title>
+    <title>Byte SMP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -392,6 +392,33 @@
             transform: translateY(-2px);
         }
 
+        /* Блок баннера рейтинга */
+        .banner-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0 1.5rem 0;
+        }
+
+        .banner-container a {
+            display: inline-block;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-glass);
+        }
+
+        .banner-container a:hover {
+            transform: translateY(-3px);
+            opacity: 0.9;
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .banner-container img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
         /* Футер */
         footer {
             text-align: center;
@@ -681,6 +708,11 @@
                     <a href="https://discord.gg/fFscEexePs" target="_blank" class="btn">Discord</a>
                 </div>
             </div>
+        </div>
+
+        <!-- Баннер рейтинга Millida -->
+        <div class="banner-container">
+            <a href="https://millida.net/rating/servers/bytesmp" target="_blank" rel="noopener"><img src="https://millida.net/rating/servers/bytesmp/banner.svg" alt="ByteSMP — рейтинг серверов Minecraft на Millida" width="340" height="74"></a>
         </div>
 
         <!-- Футер -->
