@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Byte SMP </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #070b12;
+            --bg-card: rgba(13, 20, 33, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.06);
+            --accent-blue: #38bdf8;
+            --accent-orange: #fb923c;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(192, 132, 252, 0.04) 0%, transparent 40%),
+                linear-gradient(135deg, #070b12 0%, #0d1526 100%);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 32px;
+            padding: 2.5rem;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), var(--accent-purple), transparent);
+        }
+
+        /* Шапка */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-glass);
+            flex-wrap: wrap;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.2rem;
+            background: rgba(56, 189, 248, 0.1);
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+
+        h1 span {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 1rem;
+            display: block;
+        }
+
+        /* Кнопка IP */
+        .ip-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            padding: 0.6rem 1.2rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            user-select: none;
+        }
+
+        .ip-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .ip-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ip-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .ip-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .server-version {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .copied-tooltip {
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: #1e293b;
+            color: var(--accent-blue);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .ip-card.copied .copied-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Навигация по категориям */
+        .categories-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .cat-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .cat-btn:hover, .cat-btn.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-blue);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        /* Заголовки секций */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 2rem 0 1.25rem 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Сетка правил */
+        .rules-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .rule-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1.1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .rule-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .rule-left {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            flex: 1;
+        }
+
+        .rule-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            min-width: 58px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .rule-content {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+        }
+
+        .rule-content strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Выделенные плашки наказаний */
+        .punishment-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.4rem 0.85rem;
+            border-radius: 10px;
+            white-space: nowrap;
+            letter-spacing: -0.01em;
+            border: 1px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .punishment-badge.p-low {
+            background: rgba(56, 189, 248, 0.08);
+            color: var(--accent-blue);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .punishment-badge.p-medium {
+            background: rgba(251, 146, 60, 0.08);
+            color: var(--accent-orange);
+            border-color: rgba(251, 146, 60, 0.2);
+        }
+
+        .punishment-badge.p-high {
+            background: rgba(248, 113, 113, 0.08);
+            color: var(--accent-red);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+
+        .punishment-badge.p-perm {
+            background: rgba(192, 132, 252, 0.1);
+            color: var(--accent-purple);
+            border-color: rgba(192, 132, 252, 0.25);
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.1);
+        }
+
+        /* Инфоблоки */
+        .info-boxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .info-boxes {
+                grid-template-columns: 1fr;
+            }
+            .rule-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            .punishment-badge {
+                align-self: flex-start;
+            }
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .box.warning {
+            border-left: 3px solid var(--accent-orange);
+        }
+
+        .box.danger {
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .box-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+
+        .box-links {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        /* Футер */
+        footer {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <!-- Шапка -->
+        <header>
+            <div class="logo-area">
+                <div class="logo-icon">📜</div>
+                <div>
+                    <h1>Byte SMP <span>Полный кодекс сервера и наказания</span></h1>
+                </div>
+            </div>
+            <div class="ip-card" id="ipCard" title="Нажмите, чтобы скопировать IP">
+                <div class="ip-info">
+                    <span class="ip-label">Адрес сервера</span>
+                    <span class="ip-address">c13.play2go.cloud:20082</span>
+                </div>
+                <span class="server-version">v26.2</span>
+                <div class="copied-tooltip" id="tooltip">IP скопирован в буфер!</div>
+            </div>
+        </header>
+
+        <!-- Быстрая навигация -->
+        <div class="categories-nav">
+            <a href="#grief" class="cat-btn">🛡️ Имущество и мир</a>
+            <a href="#chat" class="cat-btn">💬 Чаты и общение</a>
+            <a href="#gameplay" class="cat-btn">⚙️ Игровой процесс</a>
+            <a href="#security" class="cat-btn">🔒 Аккаунты и читы</a>
+        </div>
+
+        <!-- РАЗДЕЛ 1: Имущество и территория -->
+        <div class="section-title" id="grief">🛡️ 1. Имущество, приваты и постройки</div>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">102.2</div>
+                    <div class="rule-content">
+                        <strong>Гриферство</strong> — разрушение, воровство или порча построек чужих игроков.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Бан: 30 мин – 2 ч</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">18.3</div>
+                    <div class="rule-content">
+                        <strong>Разрушение чужого жилья</strong> — умышленный слом или перестройка домов без согласия.
+                    </div>
+                </div>
+                <div class="punishment-badge p-medium">Бан: 3 дня</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">19.1</div>
+                    <div class="rule-content">
+                        <strong>Кража из сундуков</strong> — изъятие ресурсов из чужих незаприваченных или взломанных хранилищ.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Бан: 2 – 12 часов</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">19.5</div>
+                    <div class="rule-content">
+                        <strong>Порча ландшафта</strong> — оставление гигантских ворон, столбов-одиночек, выжженной земли около спавна.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Предупреждение / Кик</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">21.0</div>
+                    <div class="rule-content">
+                        <strong>Строительство впритык</strong> — постройка зданий слишком близко к чужим базам без разрешения владельца.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Снос постройки / Мут</div>
+            </div>
+        </div>
+
+        <!-- РАЗДЕЛ 2: Чаты и общение -->
+        <div class="section-title" id="chat">💬 2. Чаты, поведение и общение</div>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">15.7</div>
+                    <div class="rule-content">
+                        <strong>Токсичность и оскорбления</strong> — оскорбления игроков, провокации и разжигание конфликтов.
+                    </div>
+                </div>
+                <div class="punishment-badge p-medium">Мут: от 1 часа</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">15.9</div>
+                    <div class="rule-content">
+                        <strong>Оскорбление родственников</strong> — упоминание или оскорбление родных в негативном ключе.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Мут/Бан: от 5 ч до 24 дн</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">32.1</div>
+                    <div class="rule-content">
+                        <strong>Спам и флуд в чате</strong> — отправка одинаковых сообщений, капс (CAPS LOCK), злоупотребление символами.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Мут: 15 – 60 минут</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">33.4</div>
+                    <div class="rule-content">
+                        <strong>Реклама сторонних ресурсов</strong> — упоминание IP других серверов, сторонних проектов, ссылок на сторонние ресурсы.
+                    </div>
+                </div>
+                <div class="punishment-badge p-perm">Бан навсегда</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">35.2</div>
+                    <div class="rule-content">
+                        <strong>Выдача себя за администрацию</strong> — попытки обмануть игроков, представляясь модератором или создателем.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Бан: 7 – 14 дней</div>
+            </div>
+        </div>
+
+        <!-- РАЗДЕЛ 3: Игровой процесс -->
+        <div class="section-title" id="gameplay">⚙️ 3. Игровой процесс и экономика</div>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">17.8</div>
+                    <div class="rule-content">
+                        <strong>Мошенничество и скам</strong> — фиктивные сделки, обман при обмене ресурсами или валютой.
+                    </div>
+                </div>
+                <div class="punishment-badge p-medium">Бан: 1 день</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">60.27</div>
+                    <div class="rule-content">
+                        <strong>Помеха игрокам</strong> — спам, ловушки на варпах/порталах, убийство игроков вне PvP-зон обманом.
+                    </div>
+                </div>
+                <div class="punishment-badge p-low">Бан: от 15 минут</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">64.0</div>
+                    <div class="rule-content">
+                        <strong>Убийство в ловушках (Трапки)</strong> — заманивание игроков в смертельные зоны через телепортацию (/tpa).
+                    </div>
+                </div>
+                <div class="punishment-badge p-medium">Бан: 2 – 5 дней</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">70.1</div>
+                    <div class="rule-content">
+                        <strong>Багоюз экономики</strong> — намеренное использование недоработок плагинов для клонирования валюты или предметов.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Бан: 14 – 30 дней</div>
+            </div>
+        </div>
+
+        <!-- РАЗДЕЛ 4: Безопасность и читы -->
+        <div class="section-title" id="security">🔒 4. Безопасность, ПО и сервер</div>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">12.13</div>
+                    <div class="rule-content">
+                        <strong>Использование читов</strong> — наличие или применение X-Ray, KillAura, Fly, автокликеров и любых модифицированных клиентов.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Бан: 30 дней</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">12.14</div>
+                    <div class="rule-content">
+                        <strong>Хранение запрещенного ПО</strong> — обнаружение читов, софтов или модификаций в файлах ПК или клиента при проверке.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Бан: 14 дней</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">14.2</div>
+                    <div class="rule-content">
+                        <strong>Отказ от проверки на читы</strong> — выход из игры, саботаж или уклонение во время вызова на проверку модератором.
+                    </div>
+                </div>
+                <div class="punishment-badge p-high">Бан: 30 дней</div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-left">
+                    <div class="rule-code">88.5</div>
+                    <div class="rule-content">
+                        <strong>Дюп предметов</strong> — поиск, распространение или использование способов клонирования любых вещей.
+                    </div>
+                </div>
+                <div class="punishment-badge p-perm">Бан навсегда</div>
+            </div>
+
+            <div class="rule-card" style="border-color: rgba(192, 132, 252, 0.2); background: rgba(192, 132, 252, 0.02);">
+                <div class="rule-left">
+                    <div class="rule-code" style="color: var(--accent-purple); background: rgba(192, 132, 252, 0.1);">99.9</div>
+                    <div class="rule-content">
+                        <strong style="color: var(--accent-purple);">Лаг-машины</strong> — создание устройств, механизмов или ферм, намеренно нагружающих сервер.
+                    </div>
+                </div>
+                <div class="punishment-badge p-perm">Бан навсегда</div>
+            </div>
+        </div>
+
+        <!-- Инфо-блоки -->
+        <div class="section-title">🛠️ Поддержка и апелляции</div>
+        <div class="info-boxes">
+            <div class="box warning">
+                <div class="box-header">
+                    <span>⚠️</span>
+                    <span>Стали жертвой обмана?</span>
+                </div>
+                <div class="box-links">
+                    <a href="https://vk.ru/bytesmp" target="_blank" class="btn">ВКонтакте</a>
+                    <a href="https://discord.gg/fFscEexePs" target="_blank" class="btn">Discord</a>
+                </div>
+            </div>
+
+            <div class="box danger">
+                <div class="box-header">
+                    <span>⚖️</span>
+                    <span>Не согласны с баном?</span>
+                </div>
+                <div class="box-links">
+                    <a href="https://vk.ru/bytesmp" target="_blank" class="btn">ВКонтакте</a>
+                    <a href="https://discord.gg/fFscEexePs" target="_blank" class="btn">Discord</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <footer>
+            <span>⚡ Администрация отвечает в течение часа</span>
+            <div class="footer-links">
+                <a href="https://vk.ru/bytesmp" target="_blank">VK</a>
+                <a href="https://discord.gg/fFscEexePs" target="_blank">Discord</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const ipCard = document.getElementById('ipCard');
+        const tooltip = document.getElementById('tooltip');
+
+        ipCard.addEventListener('click', () => {
+            navigator.clipboard.writeText('c13.play2go.cloud:20082').then(() => {
+                ipCard.classList.add('copied');
+                setTimeout(() => {
+                    ipCard.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
